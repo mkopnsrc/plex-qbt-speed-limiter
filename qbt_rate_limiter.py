@@ -29,7 +29,7 @@ def setup_logger():
 logger = setup_logger()
 
 def get_plex_sessions(plex_token):
-    endpoint = f'http://localhost:32400/status/sessions?X-Plex-Token={plex_token}'
+    endpoint = f'https://{plex_host}/status/sessions?X-Plex-Token={plex_token}'
     try:
         response = requests.get(endpoint)
         response.raise_for_status()
@@ -96,6 +96,7 @@ def process_plex_sessions(root, client, upload_limit, download_limit):
         set_qbt_limits(client, -1, -1)
 
 def main():
+    plex_host = environ.get("PLEX_HOST")
     plex_token = environ.get("PLEX_TOKEN")
     qbt_host = environ.get("QBT_HOST")
     qbt_user = environ.get("QBT_USER")
@@ -103,7 +104,7 @@ def main():
     upload_limit_mbps = environ.get("UPLOAD_LIMIT_MBPS", "0")
     download_limit_mbps = environ.get("DOWNLOAD_LIMIT_MBPS", "0")
 
-    if not all([plex_token, qbt_host, qbt_user, qbt_pass]):
+    if not all([plex_host, plex_token, qbt_host, qbt_user, qbt_pass]):
         logger.error("One or more environment variables are missing.")
         return
 
@@ -112,9 +113,12 @@ def main():
     download_limit = mbps_to_bps(download_limit_mbps)
 
     while True:
-        root = get_plex_sessions(plex_token)
+        root = get_plex_sessions(plex_host, plex_token)
         if root:
             process_plex_sessions(root, client, upload_limit, download_limit)
+        else:
+            current_upload_limit, current_download_limit = get_current_qbt_limits(client)
+
         sleep(30)
 
 if __name__ == "__main__":
