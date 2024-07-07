@@ -1,0 +1,3 @@
+requests
+qbittorrent-api
+python-dotenv
