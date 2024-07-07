@@ -31,16 +31,16 @@ This script manages the upload and download speed limits for qBittorrent based o
     git clone https://github.com/mkopnsrc/plex-qbt-speed-limiter.git
     cd plex-qbt-speed-limiter
 
-2. **Update environment file
-    ```sh
+2. **Update environment file:**
+
     cp .env_SAMPLE .env
     vi .env
 
-2. **Set Execute permission:**
-    ```sh
+3. **Set Execute permission:**
+
     chmod u+x qbt_rate_limiter.py
 
-3. **Run script:**
-    ```sh
+4. **Run script:**
+
     python3 qbt_rate_limiter.py
 
