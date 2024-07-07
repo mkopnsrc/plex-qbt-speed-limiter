@@ -29,7 +29,7 @@ def setup_logger():
 
 logger = setup_logger()
 
-def get_plex_sessions(plex_token):
+def get_plex_sessions(plex_host, plex_token):
     #Retrieve the current streaming sessions from Plex.
     """
     Returns:
