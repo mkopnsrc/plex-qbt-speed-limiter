@@ -84,8 +84,9 @@ def set_qbt_limits(client, upload_limit, download_limit):
 
 def process_plex_sessions(root, client, upload_limit, download_limit):
     #Process the Plex streaming sessions and set qBittorrent speed limits accordingly.
-    size = root.attrib.get('size', '0')
-    if size != "0":
+    stream_count = root.attrib.get('size')
+    logger.info(stream_count)
+    if stream_count != "0":
         logger.info("Someone is streaming from Plex!")
         sessions = root.findall('./Video')
         for session in sessions:
@@ -124,12 +125,9 @@ def main():
     download_limit = mbps_to_bps(download_limit_mbps)
 
     while True:
+        current_upload_limit, current_download_limit = get_current_qbt_limits(client)
         root = get_plex_sessions(plex_host, plex_token)
-        if root:
-            process_plex_sessions(root, client, upload_limit, download_limit)
-        else:
-            current_upload_limit, current_download_limit = get_current_qbt_limits(client)
-
+        process_plex_sessions(root, client, upload_limit, download_limit)
         sleep(30)
 
 if __name__ == "__main__":
