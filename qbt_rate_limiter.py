@@ -85,22 +85,25 @@ def set_qbt_limits(client, upload_limit, download_limit):
 def process_plex_sessions(root, client, upload_limit, download_limit):
     #Process the Plex streaming sessions and set qBittorrent speed limits accordingly.
     stream_count = root.attrib.get('size')
-    logger.info(stream_count)
+    logger.debug(f"Plex stream counts: {stream_count}")
     if stream_count != "0":
         logger.info("Someone is streaming from Plex!")
         sessions = root.findall('./Video')
         for session in sessions:
             attributes = session.attrib
             user = session.find('./User').attrib['title']
+            player = session.find('./Player').attrib
+            stream_type = player.get('local')
+            device_name = player.get('title')
             library = attributes.get('librarySectionTitle')
             grandparent_title = attributes.get('grandparentTitle')
             parent_title = attributes.get('parentTitle')
             title = attributes.get('title')
 
             if grandparent_title:
-                logger.info(f"User: {user}, Library: {library}, Title: {grandparent_title} - {parent_title} - {title}")
+                logger.info(f"User: {user}, Device: {device_name}, Library: {library}, Title: {grandparent_title} - {parent_title} - {title}")
             else:
-                logger.info(f"User: {user}, Library: {library}, Title: {title}")
+                logger.info(f"User: {user}, Device: {device_name}, Library: {library}, Title: {title}")
         set_qbt_limits(client, upload_limit, download_limit)
     else:
         logger.info("No one is currently streaming from Plex.")
