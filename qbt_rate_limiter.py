@@ -9,6 +9,7 @@ from os import environ
 load_dotenv()
 
 def setup_logger():
+    #Creates a logger instance, sets logging levels, and attaches handlers for both console and file output.
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 
@@ -29,6 +30,11 @@ def setup_logger():
 logger = setup_logger()
 
 def get_plex_sessions(plex_token):
+    #Retrieve the current streaming sessions from Plex.
+    """
+    Returns:
+    xml.etree.ElementTree.Element: The root element of the XML response from Plex API.
+    """
     endpoint = f'https://{plex_host}/status/sessions?X-Plex-Token={plex_token}'
     try:
         response = requests.get(endpoint)
@@ -39,6 +45,7 @@ def get_plex_sessions(plex_token):
         return None
 
 def mbps_to_bps(mbps):
+    #Convert Megabytes per second (MB/s) to Bytes per second (B/s).
     try:
         bps = int(float(mbps) * 1024 * 1024)
         return bps if bps > 0 else -1
@@ -47,6 +54,7 @@ def mbps_to_bps(mbps):
         return -1
 
 def get_current_qbt_limits(client):
+    #Retrieve the current upload and download speed limits from qBittorrent.
     try:
         current_upload_limit = client.transfer_upload_limit()
         current_download_limit = client.transfer_download_limit()
@@ -58,6 +66,7 @@ def get_current_qbt_limits(client):
         return None, None
 
 def set_qbt_limits(client, upload_limit, download_limit):
+    #Set the upload and download speed limits in qBittorrent.
     try:
         client.transfer_set_upload_limit(upload_limit)
         client.transfer_set_download_limit(download_limit)
@@ -74,6 +83,7 @@ def set_qbt_limits(client, upload_limit, download_limit):
         logger.error(f"Failed to set speed limits in qBittorrent: {e}")
 
 def process_plex_sessions(root, client, upload_limit, download_limit):
+    #Process the Plex streaming sessions and set qBittorrent speed limits accordingly.
     size = root.attrib.get('size', '0')
     if size != "0":
         logger.info("Someone is streaming from Plex!")
@@ -96,6 +106,7 @@ def process_plex_sessions(root, client, upload_limit, download_limit):
         set_qbt_limits(client, -1, -1)
 
 def main():
+    # Main function to initialize environment variables, create qBittorrent client, and run the main loop
     plex_host = environ.get("PLEX_HOST")
     plex_token = environ.get("PLEX_TOKEN")
     qbt_host = environ.get("QBT_HOST")
