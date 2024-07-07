@@ -10,6 +10,7 @@ This script manages the upload and download speed limits for qBittorrent based o
 
 - Monitors Plex for current streaming sessions.
 - Adjusts qBittorrent upload and download speed limits based on Plex streaming activity.
+- If no streams found then, remove qBittorrent upload and download speed limits.
 - Logs activity and errors to both console and a log file.
 
 ## Requirements
@@ -29,6 +30,14 @@ This script manages the upload and download speed limits for qBittorrent based o
     ```sh
     git clone https://github.com/mkopnsrc/plex-qbt-speed-limiter.git
     cd plex-qbt-speed-limiter
+
+2. **Update environment file
+    cp .env_SAMPLE .env
+    vi .env
+
+2. **Set Execute permission:**
     chmod u+x qbt_rate_limiter.py
+
+3. **Run script:**
     python3 qbt_rate_limiter.py
 
