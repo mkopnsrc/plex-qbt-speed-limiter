@@ -46,6 +46,17 @@ def mbps_to_bps(mbps):
         logger.error("Invalid limit value provided.")
         return -1
 
+def get_current_qbt_limits(client):
+    try:
+        current_upload_limit = client.transfer_upload_limit()
+        current_download_limit = client.transfer_download_limit()
+        logger.info(f"Current upload limit: {current_upload_limit} B/s")
+        logger.info(f"Current download limit: {current_download_limit} B/s")
+        return current_upload_limit, current_download_limit
+    except Exception as e:
+        logger.error(f"Failed to retrieve current speed limits from qBittorrent: {e}")
+        return None, None
+
 def set_qbt_limits(client, upload_limit, download_limit):
     try:
         client.transfer_set_upload_limit(upload_limit)
