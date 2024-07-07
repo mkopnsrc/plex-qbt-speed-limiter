@@ -26,7 +26,9 @@ This script manages the upload and download speed limits for qBittorrent based o
 ## Installation
 
 1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/mkopnsrc/plex-qbt-speed-limiter.git
-   cd plex-qbt-speed-limiter
+    ```sh
+    git clone https://github.com/mkopnsrc/plex-qbt-speed-limiter.git
+    cd plex-qbt-speed-limiter
+    chmod u+x qbt_rate_limiter.py
+    python3 qbt_rate_limiter.py
 
