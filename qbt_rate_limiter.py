@@ -70,12 +70,12 @@ def set_qbt_limits(client, upload_limit, download_limit):
     try:
         client.transfer_set_upload_limit(upload_limit)
         client.transfer_set_download_limit(download_limit)
-        if upload_limit != -1:
+        if upload_limit != 0:
             logger.info("Upload speed limit set in qBittorrent.")
         else:
             logger.info("Removed upload speed limit in qBittorrent.")
         
-        if download_limit != -1:
+        if download_limit != 0:
             logger.info("Download speed limit set in qBittorrent.")
         else:
             logger.info("Removed download speed limit in qBittorrent.")
@@ -103,7 +103,7 @@ def process_plex_sessions(root, client, upload_limit, download_limit):
         set_qbt_limits(client, upload_limit, download_limit)
     else:
         logger.info("No one is currently streaming from Plex.")
-        set_qbt_limits(client, -1, -1)
+        set_qbt_limits(client, 0, 0)
 
 def main():
     # Main function to initialize environment variables, create qBittorrent client, and run the main loop
