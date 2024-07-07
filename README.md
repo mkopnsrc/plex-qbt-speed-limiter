@@ -21,9 +21,7 @@ This script manages the upload and download speed limits for qBittorrent based o
 
 ### Install required libraries
 
-    ```
-    pip install requests qbittorrent-api python-dotenv
-
+    pip install -r requirements.txt
 
 ## Installation
 
