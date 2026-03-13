@@ -6,11 +6,10 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy in the source code
-COPY qbt_rate_limiter.py ./
+COPY plex-qbt-speed-limiter.py ./
 
-# Setup an app user so the container doesn't run as the root user
-RUN useradd app
-USER app
+#let the program know we are in a container
+ENV AM_I_IN_A_CONTAINER=yes
 
 #we are expecting the user to config the environment, no need for .env
-CMD ["python", "qbt_rate_limiter.py"]
+CMD ["python", "plex-qbt-speed-limiter.py"]

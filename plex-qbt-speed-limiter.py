@@ -11,22 +11,25 @@ load_dotenv()
 def setup_logger():
     """
     Creates a logger instance, sets logging levels, and attaches handlers for both 
-    console and file output.
+    console and file output. Disable file output if in a container because the 
+    container runtime is probably gonna log the console output. Probably.
     """
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
-
-    file_handler = logging.FileHandler('log.log')
-    file_handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
 
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
+    if environ.get("AM_I_IN_A_CONTAINER") != "yes":
+        file_handler = logging.FileHandler('log.log')
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        console_handler.setLevel(logging.INFO)
+    else:
+        console_handler.setLevel(logging.DEBUG)
+
     console_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
     logger.addHandler(console_handler)
     return logger
 
@@ -38,7 +41,10 @@ def get_plex_sessions(plex_host, plex_token):
     Retrieve the current streaming sessions from Plex.
     xml.etree.ElementTree.Element: The root element of the XML response from Plex API.
     """
-    endpoint = f'https://{plex_host}/status/sessions?X-Plex-Token={plex_token}'
+    if environ.get("REQUIRE_SECURE_CONNECTION") == "no":
+        endpoint = f'http://{plex_host}/status/sessions?X-Plex-Token={plex_token}'
+    else:
+        endpoint = f'https://{plex_host}/status/sessions?X-Plex-Token={plex_token}'
     try:
         response = requests.get(endpoint)
         response.raise_for_status()
@@ -83,7 +89,7 @@ def set_qbt_limits(client, upload_limit, download_limit):
             logger.info("Upload speed limit set in qBittorrent.")
         else:
             logger.info("Removed upload speed limit in qBittorrent.")
-        
+
         if download_limit != 0:
             logger.info("Download speed limit set in qBittorrent.")
         else:

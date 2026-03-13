@@ -1,0 +1,17 @@
+services:
+  plex-qbt-speed-limiter:
+    image: derpanieux/plex-qbt-speed-limiter:latest
+    container_name: plex-qbt-speed-limiter
+    hostname: plex-qbt-speed-limiter
+    user: 1000:1000 # this should be set to your UID and GID, which can be determined via `id -u` and `id -g`, respectively
+    environment:
+      - PLEX_HOST=your-plex-host:32400
+      - PLEX_TOKEN=your-plex-token
+      - QBT_HOST=your-qbt-host:8080
+      - QBT_USER=username
+      - QBT_PASS=hunter2
+      - UPLOAD_LIMIT_MBPS=10
+      - DOWNLOAD_LIMIT_MBPS=10
+      - REQUIRE_SECURE_CONNECTION=no
+    restart: unless-stopped
+    network_mode: host
