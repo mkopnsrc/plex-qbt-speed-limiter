@@ -44,3 +44,6 @@ This script manages the upload and download speed limits for qBittorrent based o
     ```sh
     python3 qbt_rate_limiter.py
 
+## Docker
+
+There is a Docker image published. See the included example-compose.yaml for use with Docker Compose. All the environment variables are in there and pretty self explanatory. No config files or volumes or anything, just set the environment variables.
