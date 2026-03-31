@@ -1,6 +1,6 @@
 services:
   plex-qbt-speed-limiter:
-    image: derpanieux/plex-qbt-speed-limiter:latest
+    image: ghcr.io/mkopnsrc/plex-qbt-speed-limiter:latest
     container_name: plex-qbt-speed-limiter
     hostname: plex-qbt-speed-limiter
     user: 1000:1000 # this should be set to your UID and GID, which can be determined via `id -u` and `id -g`, respectively
