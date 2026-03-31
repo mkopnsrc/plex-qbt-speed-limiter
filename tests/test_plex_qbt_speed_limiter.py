@@ -92,8 +92,11 @@ class TestSetupLogger:
     def test_container_mode_console_at_debug(self, limiter_module, monkeypatch):
         monkeypatch.setenv("AM_I_IN_A_CONTAINER", "yes")
         new_logger = limiter_module.setup_logger()
-        stream_handlers = [h for h in new_logger.handlers if isinstance(h, logging.StreamHandler)
-                          and not isinstance(h, logging.FileHandler)]
+        stream_handlers = [
+            h for h in new_logger.handlers
+            if isinstance(h, logging.StreamHandler)
+            and not isinstance(h, logging.FileHandler)
+        ]
         assert any(h.level == logging.DEBUG for h in stream_handlers)
 
     def test_non_container_mode_has_file_handler(self, limiter_module, monkeypatch, tmp_path):
@@ -111,8 +114,11 @@ class TestSetupLogger:
         monkeypatch.delenv("AM_I_IN_A_CONTAINER", raising=False)
         monkeypatch.chdir(tmp_path)
         new_logger = limiter_module.setup_logger()
-        stream_handlers = [h for h in new_logger.handlers if isinstance(h, logging.StreamHandler)
-                          and not isinstance(h, logging.FileHandler)]
+        stream_handlers = [
+            h for h in new_logger.handlers
+            if isinstance(h, logging.StreamHandler)
+            and not isinstance(h, logging.FileHandler)
+        ]
         assert any(h.level == logging.INFO for h in stream_handlers)
         # Clean up
         for h in new_logger.handlers:
