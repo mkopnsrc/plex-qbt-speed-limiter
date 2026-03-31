@@ -13,5 +13,6 @@ services:
       - UPLOAD_LIMIT_MBPS=10
       - DOWNLOAD_LIMIT_MBPS=10
       - REQUIRE_SECURE_CONNECTION=no
+      - SLEEP_INTERVAL=30
     restart: unless-stopped
     network_mode: host

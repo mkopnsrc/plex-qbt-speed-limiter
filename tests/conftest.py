@@ -1,4 +1,4 @@
-"""Shared fixtures for plex-qbt-speed-limiter tests."""
+"""Shared fixtures for plex_qbt_speed_limiter tests."""
 
 import importlib
 import sys
@@ -14,7 +14,7 @@ def limiter_module(monkeypatch):
     prevent file-handler creation during tests.
     """
     monkeypatch.setenv("AM_I_IN_A_CONTAINER", "yes")
-    mod_name = "plex-qbt-speed-limiter"
+    mod_name = "plex_qbt_speed_limiter"
     if mod_name in sys.modules:
         mod = importlib.reload(sys.modules[mod_name])
     else:

@@ -137,6 +137,7 @@ def main():
     qbt_pass            = environ.get("QBT_PASS")
     upload_limit_mbps   = environ.get("UPLOAD_LIMIT_MBPS", "0")
     download_limit_mbps = environ.get("DOWNLOAD_LIMIT_MBPS", "0")
+    sleep_interval      = int(environ.get("SLEEP_INTERVAL", "30"))
 
     if not all([plex_host, plex_token, qbt_host, qbt_user, qbt_pass]):
         logger.error("One or more environment variables are missing.")
@@ -150,7 +151,7 @@ def main():
         current_upload_limit, current_download_limit = get_current_qbt_limits(client)
         root = get_plex_sessions(plex_host, plex_token)
         process_plex_sessions(root, client, upload_limit, download_limit)
-        sleep(30)
+        sleep(sleep_interval)
 
 if __name__ == "__main__":
     main()

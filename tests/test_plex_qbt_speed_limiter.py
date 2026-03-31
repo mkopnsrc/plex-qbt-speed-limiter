@@ -1,4 +1,4 @@
-"""Comprehensive tests for plex-qbt-speed-limiter.py."""
+"""Comprehensive tests for plex_qbt_speed_limiter.py."""
 
 import logging
 import xml.etree.ElementTree as ET
@@ -440,7 +440,7 @@ class TestMain:
             limiter_module.main()
         assert "missing" in caplog.text.lower()
 
-    def test_main_loop_runs_and_stops(self, limiter_module, monkeypatch, mocker):
+    def test_main_loop_uses_default_sleep_interval(self, limiter_module, monkeypatch, mocker):
         """Test that main() creates a Client and enters the loop."""
         monkeypatch.setenv("PLEX_HOST", "plex.local")
         monkeypatch.setenv("PLEX_TOKEN", "tok123")
@@ -449,6 +449,7 @@ class TestMain:
         monkeypatch.setenv("QBT_PASS", "secret")
         monkeypatch.setenv("UPLOAD_LIMIT_MBPS", "10")
         monkeypatch.setenv("DOWNLOAD_LIMIT_MBPS", "20")
+        monkeypatch.delenv("SLEEP_INTERVAL", raising=False)
 
         mock_client_instance = mocker.MagicMock()
         mock_client_instance.transfer_upload_limit.return_value = 0
@@ -461,12 +462,11 @@ class TestMain:
         )
         monkeypatch.setattr(limiter_module, "get_plex_sessions", mock_get_sessions)
 
-        call_count = 0
+        sleep_values = []
 
         def mock_sleep(seconds):
-            nonlocal call_count
-            call_count += 1
-            if call_count >= 2:
+            sleep_values.append(seconds)
+            if len(sleep_values) >= 2:
                 raise KeyboardInterrupt()
 
         monkeypatch.setattr(limiter_module, "sleep", mock_sleep)
@@ -478,6 +478,8 @@ class TestMain:
             host="qbt.local", username="admin", password="secret"
         )
         assert mock_get_sessions.call_count >= 1
+        # Default sleep interval is 30
+        assert all(v == 30 for v in sleep_values)
 
     def test_default_limits_when_not_set(self, limiter_module, monkeypatch, mocker):
         """UPLOAD_LIMIT_MBPS and DOWNLOAD_LIMIT_MBPS default to '0'."""
@@ -517,3 +519,73 @@ class TestMain:
         # Defaults "0" -> mbps_to_bps("0") -> -1
         # This verifies the function runs with default env var values
         mock_client_cls.assert_called_once()
+
+    def test_custom_sleep_interval(self, limiter_module, monkeypatch, mocker):
+        """Test that SLEEP_INTERVAL env var controls the sleep duration."""
+        monkeypatch.setenv("PLEX_HOST", "plex.local")
+        monkeypatch.setenv("PLEX_TOKEN", "tok123")
+        monkeypatch.setenv("QBT_HOST", "qbt.local")
+        monkeypatch.setenv("QBT_USER", "admin")
+        monkeypatch.setenv("QBT_PASS", "secret")
+        monkeypatch.setenv("SLEEP_INTERVAL", "60")
+
+        mock_client_instance = mocker.MagicMock()
+        mock_client_instance.transfer_upload_limit.return_value = 0
+        mock_client_instance.transfer_download_limit.return_value = 0
+        mock_client_cls = mocker.MagicMock(return_value=mock_client_instance)
+        monkeypatch.setattr(limiter_module, "Client", mock_client_cls)
+
+        monkeypatch.setattr(
+            limiter_module,
+            "get_plex_sessions",
+            mocker.MagicMock(return_value=ET.fromstring(PLEX_XML_NO_STREAMS)),
+        )
+
+        sleep_values = []
+
+        def mock_sleep(seconds):
+            sleep_values.append(seconds)
+            if len(sleep_values) >= 1:
+                raise KeyboardInterrupt()
+
+        monkeypatch.setattr(limiter_module, "sleep", mock_sleep)
+
+        with pytest.raises(KeyboardInterrupt):
+            limiter_module.main()
+
+        assert sleep_values[0] == 60
+
+    def test_sleep_interval_defaults_to_30(self, limiter_module, monkeypatch, mocker):
+        """Test that SLEEP_INTERVAL defaults to 30 when not set."""
+        monkeypatch.setenv("PLEX_HOST", "plex.local")
+        monkeypatch.setenv("PLEX_TOKEN", "tok123")
+        monkeypatch.setenv("QBT_HOST", "qbt.local")
+        monkeypatch.setenv("QBT_USER", "admin")
+        monkeypatch.setenv("QBT_PASS", "secret")
+        monkeypatch.delenv("SLEEP_INTERVAL", raising=False)
+
+        mock_client_instance = mocker.MagicMock()
+        mock_client_instance.transfer_upload_limit.return_value = 0
+        mock_client_instance.transfer_download_limit.return_value = 0
+        mock_client_cls = mocker.MagicMock(return_value=mock_client_instance)
+        monkeypatch.setattr(limiter_module, "Client", mock_client_cls)
+
+        monkeypatch.setattr(
+            limiter_module,
+            "get_plex_sessions",
+            mocker.MagicMock(return_value=ET.fromstring(PLEX_XML_NO_STREAMS)),
+        )
+
+        sleep_values = []
+
+        def mock_sleep(seconds):
+            sleep_values.append(seconds)
+            if len(sleep_values) >= 1:
+                raise KeyboardInterrupt()
+
+        monkeypatch.setattr(limiter_module, "sleep", mock_sleep)
+
+        with pytest.raises(KeyboardInterrupt):
+            limiter_module.main()
+
+        assert sleep_values[0] == 30
